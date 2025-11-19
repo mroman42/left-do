@@ -55,6 +55,7 @@
        o2 <- (observe announce 'middle)
        pure car))
 
+
 ;; Standard formulation of the Monty-Hall problem.
 ;; We pick the Left door.
 ;; The host announces that the middle door is empty.
@@ -66,3 +67,4 @@
      o1 <- (observe choice 'left)
      o2 <- (observe announce 'middle)
      pure car)
+
