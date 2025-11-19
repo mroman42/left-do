@@ -35,3 +35,8 @@ However, if we associate to the right, we obtain the solution that assumes that 
        pure car)
 >>> '((left 1/2) (right 1/2))
 ```
+
+In recent joint work with Di Lavore and Széles, we show how this normalization
+"almost-moand" arises as a "distributive sesquilaw".
+
+ - [Accepting Normalization via Markov Magmoids.](https://arxiv.org/pdf/2510.01131)
