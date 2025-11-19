@@ -37,6 +37,8 @@ However, if we associate to the right, we obtain the solution that assumes that 
 ```
 
 In recent joint work with Di Lavore and Széles, we show how this normalization
-"almost-moand" arises as a "distributive sesquilaw".
+"almost-moand" arises as a "distributive sesquilaw". If you want other examples of
+magmoid and are comfortable with category theory, I highly recommend the work on duploids linked below.
 
  - [Accepting Normalization via Markov Magmoids.](https://arxiv.org/pdf/2510.01131)
+ - [Classical notions of computation and the Hasegawa-Thielecke theorem](https://arxiv.org/abs/2502.13033)
