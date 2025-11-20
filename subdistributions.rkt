@@ -150,9 +150,14 @@
     dist-return
     dist-bind))
 
+(define-syntax distribution
+  (syntax-rules ()
+    [(_ [x v] rest ...)  (cons (pair x v) (distribution rest ...))]
+    [(_)                 (list)]))
 
 (provide
  dist-bind dist-return
  (rename-out [dist-uniform uniform])
  dist-void)
 (provide Subd)
+(provide distribution)
