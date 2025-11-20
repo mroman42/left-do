@@ -2,7 +2,7 @@
 
 Haskell's bind is left-associative, but Haskell's do-notation (Kleisli
 composition) is right-associative.  This is an implementation of both
-left and right do-notation for arbitrary monads in Racket.
+left and right do-notation for arbitrary monad-like constructions in Racket.
 
 Of course, left and right-associative do-notation coincide for any monad, but
 there are some constructions -- like probabilistic normalization -- that do not
