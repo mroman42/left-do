@@ -4,34 +4,35 @@
 
 
 ;; Do-notation
-(define-syntax rdo
+(define-syntax rDo
   (syntax-rules (<- return)
-    [(rdo m var <- mexp rest ...)
-     ((monad-bind m) mexp (match-lambda [var (rdo m rest ...)]))]
-    [(rdo m return value)
+    [(rDo m var <- mexp rest ...)
+     ((monad-bind m) mexp (match-lambda [var (rDo m rest ...)]))]
+    [(rDo m return value)
      ((monad-return m) value)]))
 
-(define-syntax doLeftAcc
+(define-syntax accDo
   (syntax-rules (<- return)
-    [(doLeftAcc m acc accVar
+    [(accDo m acc accVar
                 var <- mexp
                 rest ...)
-     (doLeftAcc m
-                (rdo m
+     (accDo m
+                (rDo m
                   accVar <- acc
                   var <- mexp
                   return (list var accVar))
                 (list var accVar)
                 rest ...)]
-    [(doLeftAcc m acc accVar
+    [(accDo m acc accVar
                 return var)
-     (rdo m
+     (rDo m
        accVar <- acc
        return var)]))
 
-(define-syntax ldo
+(define-syntax lDo
   (syntax-rules (<- return)
-    [(ldo m rest ...)  (doLeftAcc m (rdo m return (list)) (list) rest ...)]))
+    [(lDo m rest ...)
+     (accDo m (rDo m return (list)) (list) rest ...)]))
 
 
-(provide rdo ldo)
+(provide rDo lDo)

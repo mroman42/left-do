@@ -1,32 +1,16 @@
-#lang br
+#lang racket
+
+;; subdistributions.rkt
+;;
+;; This file implements the subdistribution monad as a list of pairs
+;; element/probability.
 
 (require racket/struct)
 (require rackunit)
 (require leftdo/monad)
 
 (struct subdistribution (results))
-
-(provide
- dist-bind
- dist-return
- (rename-out [dist-uniform uniform])
- dist-normalize
- dist-void)
-
-
 (define (pair x y) (list x y))
-
-(define example
-  (list
-   (pair 'a #e0.3)
-   (pair 'b #e0.7)
-   (pair 'c #e0.0)))
-
-(define example-2
-  (list
-   (pair 3 0.3)
-   (pair 4 0.7)))
-
 
 
 ;; Validity.
@@ -49,24 +33,11 @@
     [((cons (list x 0) ys))  (remove-zeroes ys)]
     [((cons (list x v) ys))  (cons (list x v) (remove-zeroes ys))])
 
-(check-equal?
- (remove-zeroes
-  (list
-   (pair 'a #e0.3)
-   (pair 'b #e0.7)
-   (pair 'c #e0.0)))
- (list
-  (list 'a #e0.3)
-  (list 'b #e0.7)))
-
 ;; Weight of a single point of a distribution.
 (define/match (weight-of-point x xs)
   [(x '()) 0]
   [(x (cons (list x v) ys)) (+ v (weight-of-point x ys))]
   [(x (cons (list y v) ys)) (weight-of-point x ys)])
-
-(check-equal? (weight-of-point 'a example) #e0.3)
-
 
 ;; Reweighting a distribution.
 (define/match (dist-remove x xs)
@@ -85,20 +56,6 @@
 (define (condense xs)
   (reweight (remove-zeroes xs)))
 
-(define example-3
-  (list
-   (list 'a #e0.3)
-   (list 'b #e0.1)
-   (list 'b #e0.1)
-   (list 'a #e0.1)
-   (list 'c #e0.0)))
-
-(check-equal?
- (condense example-3)
- (list
-  (list 'a #e0.4)
-  (list 'b #e0.2)))
-
 ;; Subdistributions of subdistributions.
 (define/match (rescale xss)
   [((list xs v))  (dist-map-values (lambda (x) (* v x)) xs)])
@@ -107,22 +64,8 @@
   (condense (apply append (map rescale xss))))
 
 (define (dist-normalize xs)
-  (condense
-   (dist-map-values (lambda (v) (/ v (validity xs))) xs)))
+  (condense (dist-map-values (lambda (v) (/ v (validity xs))) xs)))
 
-(define example-4
-  (list
-   (pair
-    (list
-     (pair 'a #e0.3)
-     (pair 'b #e0.7))
-    #e0.4)
-   (pair
-    (list
-     (pair 'b #e0.2)
-     (pair 'a #e0.3)
-     (pair 'c #e0.5))
-    #e0.6)))
   
 ;; Monadic bind and return.
 (define (dist-bind xs f)
@@ -155,9 +98,65 @@
     [(_ [x v] rest ...)  (cons (pair x v) (distribution rest ...))]
     [(_)                 (list)]))
 
+
+
+(check-equal?
+ (remove-zeroes
+  (list
+   (pair 'a #e0.3)
+   (pair 'b #e0.7)
+   (pair 'c #e0.0)))
+ (list
+  (list 'a #e0.3)
+  (list 'b #e0.7)))
+
+(define example
+  (list
+   (pair 'a #e0.3)
+   (pair 'b #e0.7)
+   (pair 'c #e0.0)))
+
+(define example-2
+  (list
+   (pair 3 0.3)
+   (pair 4 0.7)))
+
+(check-equal? (weight-of-point 'a example) #e0.3)
+
+(define example-3
+  (list
+   (list 'a #e0.3)
+   (list 'b #e0.1)
+   (list 'b #e0.1)
+   (list 'a #e0.1)
+   (list 'c #e0.0)))
+
+(check-equal?
+ (condense example-3)
+ (list
+  (list 'a #e0.4)
+  (list 'b #e0.2)))
+
+(define example-4
+  (list
+   (pair
+    (list
+     (pair 'a #e0.3)
+     (pair 'b #e0.7))
+    #e0.4)
+   (pair
+    (list
+     (pair 'b #e0.2)
+     (pair 'a #e0.3)
+     (pair 'c #e0.5))
+    #e0.6)))
+
+
+
 (provide
  dist-bind dist-return
  (rename-out [dist-uniform uniform])
- dist-void)
+ dist-void dist-normalize)
 (provide Subd)
 (provide distribution)
+;;(provide dist-bind dist-return (rename-out [dist-uniform uniform]) dist-normalize dist-void)

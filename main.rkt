@@ -2,15 +2,15 @@
 
 (require leftdo/monad)
 (require leftdo/subdistributions)
-(require leftdo/normalized)
+(require leftdo/normalization-almost-monad)
 (require leftdo/left-do)
 
 
 
 ;; First list example.
 ;; Lists form a proper associative monad.
-(define a (rdo List
-  i <- (rdo List
+(define a (rDo List
+  i <- (rDo List
          (list x y) <- (list (list 3 3) (list 4 5))
          v <- '(2 7 4)
          return (+ y v))
@@ -18,8 +18,8 @@
   return (* i i)))
 
 
-(define b (ldo List
-  i <- (ldo List
+(define b (lDo List
+  i <- (lDo List
          (list x y) <- (list (list 3 3) (list 4 5))
          v <- '(2 7 4)
          return (+ y v))
@@ -48,8 +48,12 @@
       (uniform (list '()))
       (uniform (list))))
 
-(define monty-hall
-  (rdo Norm
+;; Standard formulation of the Monty-Hall problem.
+;; We pick the Left door.
+;; The host announces that the middle door is empty.
+;; Should we change doors?
+(define r-monty-hall
+  (rDo Norm
        car <- (uniform (list 'left 'middle 'right))
        choice <- (uniform (list 'left 'middle 'right))
        announce <- (host car choice)
@@ -57,26 +61,21 @@
        o2 <- (observe announce 'middle)
        return car))
 
+(define l-monty-hall
+  (lDo Norm
+       car <- (uniform (list 'left 'middle 'right))
+       choice <- (uniform (list 'left 'middle 'right))
+       announce <- (host car choice)
+       '() <- (observe choice 'left)
+       '() <- (observe announce 'middle)
+       return car))
 
-;; Standard formulation of the Monty-Hall problem.
-;; We pick the Left door.
-;; The host announces that the middle door is empty.
-;; Should we change doors?
-(rdo Norm
-     car <- (uniform (list 'left 'middle 'right))
-     choice <- (uniform (list 'left 'middle 'right))
-     announce <- (host car choice)
-     '() <- (observe choice 'left)
-     '() <- (observe announce 'middle)
-     return car)
-
-(ldo Norm
-     car <- (uniform (list 'left 'middle 'right))
-     choice <- (uniform (list 'left 'middle 'right))
-     announce <- (host car choice)
-     '() <- (observe choice 'left)
-     '() <- (observe announce 'middle)
-     return car)
+(define monty-hall2
+  (lDo Norm
+       car <- (uniform (list 'left 'middle 'right))
+       announce <- (host car 'middle)
+       '() <- (observe announce 'left)
+       return car))
 
 
 ;; Smoking causality example.
@@ -102,18 +101,46 @@
                ['tar    (distribution ['cancer 2/5] ['nocancer 3/5]  )]
                ['notar  (distribution ['cancer 2/10] ['nocancer 8/10])])]))
 
-(ldo Norm
-     has-gene <- prevalence
-     is-smoker <- (smokes has-gene)
-     o1 <- (observe is-smoker 'smoker)
-     has-tar <- (tar is-smoker)
-     cancer <- (health has-gene has-tar)
-     return cancer)
 
-(rdo Norm
-     has-gene <- prevalence
-     is-smoker <- (smokes has-gene)
-     o1 <- (observe is-smoker 'smoker)
-     has-tar <- (tar is-smoker)
-     cancer <- (health has-gene has-tar)
-     return cancer)
+; Left-associating smoking problem.
+(define l-smoking
+  (lDo Norm
+       has-gene <- prevalence
+       is-smoker <- (smokes has-gene)
+       '() <- (observe is-smoker 'smoker)
+       has-tar <- (tar is-smoker)
+       cancer <- (health has-gene has-tar)
+       return cancer))
+
+; Right-associating smoking problem.
+(define r-smoking
+  (rDo Norm
+       has-gene <- prevalence
+       is-smoker <- (smokes has-gene)
+       '() <- (observe is-smoker 'smoker)
+       has-tar <- (tar is-smoker)
+       cancer <- (health has-gene has-tar)
+       return cancer))
+
+; Left-associating with normalization box smoking problem.
+(define n-smoking
+  (lDo Norm
+       has-gene <- prevalence
+       is-smoker <- (lDo Norm
+                         is-smoker <- (smokes has-gene)
+                         '() <- (observe is-smoker 'smoker)
+                         return is-smoker)
+       has-tar <- (tar is-smoker)
+       cancer <- (health has-gene has-tar)
+       return cancer))
+
+;; Continuation monad example.
+(define (fib n)
+  (if (< n 2)
+      (rDo Cont
+           return n)
+      (rDo Cont
+           x <- (fib (- n 1))
+           y <- (fib (- n 2))
+           return (+ x y))))
+

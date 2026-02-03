@@ -1,5 +1,10 @@
 #lang racket
 
+;; monad.rkt
+
+;; This file provides the interface for monads (return, bind) and
+;; implementations for multiple basic monads (List, Identity, Maybe, ...).
+;; The distribution monad is implemented separately (subdistributions.rkt).
 
 (struct monad (return bind))
 
@@ -16,8 +21,8 @@
    (λ (xs f) (f xs))))
 
 ;; Maybe monad.
-(struct just (elem))
-(struct nothing ()) 
+(struct just (elem) #:transparent)
+(struct nothing () #:transparent) 
 
 (define Maybe
   (monad
@@ -30,7 +35,21 @@
          (nothing)))))
 
 
+;; Continuation monad.
+(define Cont
+  (monad 
+   ;; return : x -> (x -> r) -> r
+   (λ (x) (λ (f) (f x)))
+   ;; bind : ((x -> r) -> r) ->
+   ;;        (x -> ((y -> r) -> r)) ->
+   ;;        ((y -> r) -> r)
+   (λ (d f) (λ (k) (d (λ (x) ((f x) k)))))
+   ))
+   
 (provide (struct-out monad))
+(provide List)
 (provide (struct-out nothing))
 (provide (struct-out just))
-(provide List Id Maybe)
+(provide Maybe)
+(provide Id)
+(provide Cont)
