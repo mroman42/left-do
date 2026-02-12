@@ -88,7 +88,7 @@
 
 
 (define Subd
-  (monad dist-return dist-bind))
+  (monad dist-return dist-bind dist-map))
 
 (define-syntax distribution
   (syntax-rules ()
@@ -151,7 +151,7 @@
 
 
 (provide
- dist-bind dist-return
+ dist-bind dist-return dist-map
  (rename-out [dist-uniform uniform])
  dist-void dist-normalize)
 (provide Subd)

@@ -1,7 +1,7 @@
 #lang racket
 
 (require leftdo/monad)
-(require leftdo/subdistributions)
+(require leftdo/normalized-distributions)
 (require leftdo/normalization-almost-monad)
 (require leftdo/left-do)
 
@@ -135,12 +135,12 @@
        return cancer))
 
 ;; Continuation monad example.
-(define (fib n)
-  (if (< n 2)
-      (rDo Cont
-           return n)
-      (rDo Cont
-           x <- (fib (- n 1))
-           y <- (fib (- n 2))
-           return (+ x y))))
+;(define (fib n)
+;  (if (< n 2)
+;      (rDo Cont
+;           return n)
+;      (rDo Cont
+;           x <- (fib (- n 1))
+;           y <- (fib (- n 2))
+;           return (+ x y))))
 
