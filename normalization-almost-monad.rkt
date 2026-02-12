@@ -1,6 +1,6 @@
 #lang racket
 
-(require leftdo/subdistributions)
+(require leftdo/normalized-distributions)
 (require leftdo/monad)
 
 

@@ -84,14 +84,11 @@
     (pair #t p)
     (pair #f (- 1 p))))
 
-(define dist-void
-  (list))
+(define dist-void (list))
 
 
 (define Subd
-  (monad
-    dist-return
-    dist-bind))
+  (monad dist-return dist-bind))
 
 (define-syntax distribution
   (syntax-rules ()
