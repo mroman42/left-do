@@ -19,5 +19,4 @@
     norm-map))
 
 (provide Norm)
-(provide norm-return)
-(provide norm-bind)
+(provide norm-return norm-bind norm-map)
